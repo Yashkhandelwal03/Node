@@ -5,7 +5,22 @@ mongoose.connect("mongodb://localhost:27017/harigopal").then(() =>{console.log("
 // Creating the schema
 
 const newPlaylist = new mongoose.Schema({
-    name : String,
+    name : {
+        type: String,
+        unique: true,
+        lowercase: true,
+        trim: true,
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        validate(value){
+            if(!validator.isEmail(value)){
+                throw new Error("Invalid Email");
+            }
+        }
+    },
     played : Number,
     singer : String,
     views : Number,
@@ -46,4 +61,40 @@ const createDocument = async () =>{
     }
 }
 
-createDocument();
+const createDocument1 = async () =>{
+    try {
+        const res = new Playlist({
+            name : "                Deewana         pagal       hai         ",
+            played : 200,
+            singer : "Arijit singh",
+            email: "kamko@gmail.co",
+            views : 2000
+        })
+        const result = await Playlist.insertMany([res]);
+        // const result = await Playlist.insertOne({res});
+        console.log(result);
+    } catch (error) {
+        console.log(error);
+    }
+}
+createDocument1();
+
+//Reading Documents greater than nad less than
+
+// const readingDocument = async () =>{
+//     const doc = await Playlist.find({played: { $gt : 300}})
+//     .select({name:1})
+//     // .limit(1);
+//     console.log(doc);
+// }
+
+
+//Logical Operators
+const readingDocument = async () =>{
+    const doc = await Playlist.find({$and : [{name: "Pagalpanti"},{views: 250000}]})
+    .select({name:1})
+    // .limit(1);
+    console.log(doc);
+}
+
+// readingDocument();
